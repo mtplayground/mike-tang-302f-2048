@@ -1,0 +1,67 @@
+# Architecture plan for 2048 implementation
+
+## Product scope
+
+Build a browser-based 2048 game, using the product name and player-facing copy from the implementation issues. Keep the first screen as the playable game, not a marketing page.
+
+## Proposed project shape
+
+The repository is currently empty apart from the README, so the first implementation issue should choose a small static frontend stack. A Vite app with TypeScript is a good fit because the game is client-only, animation-heavy, and easy to self-host as static assets.
+
+Recommended layout:
+
+- `src/main.tsx` or `src/main.ts`: application entry point.
+- `src/App.tsx`: top-level game composition, header, board, overlays, and restart/continue actions.
+- `src/game/types.ts`: shared types such as `Direction`, `CellIndex`, `Tile`, `Board`, `GameStatus`, `MoveResult`, and `GameState`.
+- `src/game/state.ts`: initial game creation, restart, score updates, win/game-over state transitions, and best-score integration boundary.
+- `src/game/move.ts`: pure slide/merge implementation for all four directions, returning the next board, score delta, movement metadata, and merge metadata.
+- `src/game/spawn.ts`: empty-cell selection and classic 2/4 spawn odds.
+- `src/game/selectors.ts`: pure helpers for win detection, available moves, full-board checks, and display ordering.
+- `src/storage/bestScore.ts`: localStorage read/write wrapper with safe fallback when storage is unavailable.
+- `src/input/keyboard.ts` and `src/input/touch.ts`: reusable input handlers that translate user input into `Direction`.
+- `src/components/Board.tsx`: 4x4 grid surface and cell background rendering.
+- `src/components/Tile.tsx`: tile value rendering, colors, positioning, and animation classes/data attributes.
+- `src/components/Header.tsx`: current score, best score, and restart control.
+- `src/components/Overlay.tsx`: win and game-over modal-style overlays.
+- `src/styles.css` or scoped CSS modules: responsive layout, tile palette, board sizing, and animations.
+- `tests/` or `e2e/`: Playwright tests for full flow, responsive behavior, keyboard input, and touch simulation.
+
+## Shared model decisions
+
+- Represent the board as exactly 16 cells indexed row-major from 0 to 15.
+- Store tile values as numbers and empty cells as `null`; UI tile identity should use stable tile ids once animations are introduced.
+- Keep slide/merge logic pure and deterministic except for spawn selection. This makes Issues #2, #3, #4, #5, #7, and #8 unit-testable.
+- Inject randomness into spawn helpers where possible so tests can force exact boards and spawned values.
+- Return movement metadata from move logic early, even before animations exist, so Issues #12 and #13 do not require rewriting the game engine.
+- Treat overlays as state in the game model: `playing`, `won_pending_ack`, `won_continuing`, and `game_over`.
+- Keyboard and touch handlers should call the same `move(direction)` action and should be disabled only when the active overlay requires it.
+- Persist only the best score in localStorage; current game state persistence is out of scope unless a later issue asks for it.
+
+## Issue dependencies and implementation order
+
+1. Issue #1 establishes board, tile rendering, and base styling.
+2. Issue #2 adds the core state model and initial two-tile spawn.
+3. Issue #3 implements pure slide/merge logic, which unlocks most gameplay.
+4. Issue #4 adds post-move spawning only when a board changes.
+5. Issue #5 adds current score updates from merge results.
+6. Issue #6 persists and displays best score.
+7. Issues #7 and #8 add terminal/overlay states using selectors from the model.
+8. Issues #9 and #10 wire keyboard and touch input into the same move action.
+9. Issue #11 applies the classic warm tile color progression.
+10. Issues #12 and #13 use movement/spawn metadata for slide, merge-pop, and spawn animations.
+11. Issue #14 tightens responsive behavior across desktop and mobile.
+12. Issues #15 and #16 verify complete flow, cross-input behavior, animation stability, and responsive layouts.
+13. Issue #17 finalizes static build output and deployment configuration.
+
+## Testing strategy
+
+- Add unit tests around `game/move.ts`, `game/spawn.ts`, and selectors as soon as those modules exist.
+- Cover merge edge cases explicitly: `[2,2,2,0]`, `[2,2,2,2]`, `[4,4,4,0]`, blocked moves, and no-op moves.
+- Use Playwright for full-game flow after UI and input exist, with deterministic hooks or seeded randomness if practical.
+- Keep deployment verification static-build focused: clean install, production build, and asset loading under a non-root public host.
+
+## Deployment notes
+
+- Prefer static hosting for the finished 2048 game.
+- If a server is later added, derive public origin from `X-Forwarded-Host` and `X-Forwarded-Proto`, not the raw `Host` header.
+- Do not origin-gate static assets; Vite-style asset loading must work through the reverse proxy.
