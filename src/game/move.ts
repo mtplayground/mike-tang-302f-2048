@@ -1,4 +1,12 @@
-import { BOARD_SIZE, CELL_COUNT, type CellValue, type TileValue } from "./state";
+import {
+  BOARD_SIZE,
+  CELL_COUNT,
+  createRandomTileValue,
+  getEmptyCellIndexes,
+  type CellValue,
+  type RandomSource,
+  type TileValue
+} from "./state";
 
 export type Direction = "up" | "down" | "left" | "right";
 
@@ -7,10 +15,19 @@ export interface MergeEvent {
   value: TileValue;
 }
 
+export interface SpawnEvent {
+  index: number;
+  value: TileValue;
+}
+
 export interface MoveResult {
   cells: CellValue[];
   moved: boolean;
   merges: MergeEvent[];
+}
+
+export interface MoveWithSpawnResult extends MoveResult {
+  spawned: SpawnEvent | null;
 }
 
 interface LineMergeResult {
@@ -47,6 +64,58 @@ export function moveCells(cells: CellValue[], direction: Direction): MoveResult 
     cells: nextCells,
     moved: !areCellsEqual(cells, nextCells),
     merges
+  };
+}
+
+export function moveCellsWithSpawn(
+  cells: CellValue[],
+  direction: Direction,
+  random: RandomSource = Math.random
+): MoveWithSpawnResult {
+  const moveResult = moveCells(cells, direction);
+
+  if (!moveResult.moved) {
+    return {
+      ...moveResult,
+      spawned: null
+    };
+  }
+
+  const spawnResult = spawnRandomTile(moveResult.cells, random);
+
+  return {
+    ...moveResult,
+    cells: spawnResult.cells,
+    spawned: spawnResult.spawned
+  };
+}
+
+export function spawnRandomTile(
+  cells: CellValue[],
+  random: RandomSource = Math.random
+): {
+  cells: CellValue[];
+  spawned: SpawnEvent | null;
+} {
+  assertBoardShape(cells);
+
+  const emptyIndexes = getEmptyCellIndexes(cells);
+
+  if (emptyIndexes.length === 0) {
+    return {
+      cells: [...cells],
+      spawned: null
+    };
+  }
+
+  const nextCells = [...cells];
+  const index = emptyIndexes[getRandomIndex(emptyIndexes.length, random)];
+  const value = createRandomTileValue(random);
+  nextCells[index] = value;
+
+  return {
+    cells: nextCells,
+    spawned: { index, value }
   };
 }
 
@@ -121,6 +190,24 @@ function getColumnLines(reverse: boolean): number[][] {
 
 function areCellsEqual(left: CellValue[], right: CellValue[]): boolean {
   return left.every((value, index) => value === right[index]);
+}
+
+function getRandomIndex(length: number, random: RandomSource): number {
+  if (!Number.isInteger(length) || length <= 0) {
+    throw new RangeError("Random index length must be a positive integer.");
+  }
+
+  return Math.floor(readRandomUnit(random) * length);
+}
+
+function readRandomUnit(random: RandomSource): number {
+  const value = random();
+
+  if (!Number.isFinite(value) || value < 0 || value >= 1) {
+    throw new RangeError("Random source must return a finite number from 0 up to 1.");
+  }
+
+  return value;
 }
 
 function assertBoardShape(cells: CellValue[]): void {
