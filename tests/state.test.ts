@@ -4,7 +4,10 @@ import {
   acknowledgeWin,
   applyScoreDelta,
   createInitialGameState,
+  hasAvailableMerge,
+  hasEmptyCell,
   hasWinningTile,
+  isGameOver,
   shouldShowWinOverlay,
   type GameState
 } from "../src/game/state.ts";
@@ -48,12 +51,62 @@ test("shouldShowWinOverlay is true until the win is acknowledged", () => {
   assert.equal(shouldShowWinOverlay(acknowledgedState), false);
 });
 
+test("hasEmptyCell detects whether the board has open spaces", () => {
+  assert.equal(hasEmptyCell(stateWithCells([2, null]).cells), true);
+  assert.equal(hasEmptyCell(fullBoardWithoutMerges()), false);
+});
+
+test("hasAvailableMerge detects horizontal or vertical merge options", () => {
+  assert.equal(hasAvailableMerge(fullBoardWithoutMerges()), false);
+  assert.equal(
+    hasAvailableMerge([
+      2, 2, 4, 8,
+      16, 32, 64, 128,
+      256, 512, 1024, 2,
+      4, 8, 16, 32
+    ]),
+    true
+  );
+  assert.equal(
+    hasAvailableMerge([
+      2, 4, 8, 16,
+      2, 32, 64, 128,
+      256, 512, 1024, 2,
+      4, 8, 16, 32
+    ]),
+    true
+  );
+});
+
+test("isGameOver requires a full board with no available merges", () => {
+  assert.equal(isGameOver(fullBoardWithoutMerges()), true);
+  assert.equal(isGameOver(stateWithCells([2, null]).cells), false);
+  assert.equal(
+    isGameOver([
+      2, 2, 4, 8,
+      16, 32, 64, 128,
+      256, 512, 1024, 2,
+      4, 8, 16, 32
+    ]),
+    false
+  );
+});
+
 function stateWithCells(values: Array<number | null>): GameState {
   return {
     cells: [...values, ...Array<null>(16 - values.length).fill(null)],
     score: 0,
     hasAcknowledgedWin: false
   };
+}
+
+function fullBoardWithoutMerges() {
+  return [
+    2, 4, 2, 4,
+    4, 2, 4, 2,
+    2, 4, 2, 4,
+    4, 2, 4, 2
+  ];
 }
 
 function sequence(values: number[]): () => number {
