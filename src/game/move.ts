@@ -24,6 +24,7 @@ export interface MoveResult {
   cells: CellValue[];
   moved: boolean;
   merges: MergeEvent[];
+  scoreDelta: number;
 }
 
 export interface MoveWithSpawnResult extends MoveResult {
@@ -63,8 +64,13 @@ export function moveCells(cells: CellValue[], direction: Direction): MoveResult 
   return {
     cells: nextCells,
     moved: !areCellsEqual(cells, nextCells),
-    merges
+    merges,
+    scoreDelta: getMergeScore(merges)
   };
+}
+
+export function getMergeScore(merges: readonly MergeEvent[]): number {
+  return merges.reduce((score, merge) => score + merge.value, 0);
 }
 
 export function moveCellsWithSpawn(

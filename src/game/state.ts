@@ -8,6 +8,7 @@ export type RandomSource = () => number;
 
 export interface GameState {
   cells: CellValue[];
+  score: number;
 }
 
 export interface CellPosition {
@@ -22,7 +23,21 @@ export function createInitialGameState(random: RandomSource = Math.random): Game
     cells = placeRandomTile(cells, random);
   }
 
-  return { cells };
+  return {
+    cells,
+    score: 0
+  };
+}
+
+export function applyScoreDelta(state: GameState, scoreDelta: number): GameState {
+  if (!Number.isInteger(scoreDelta) || scoreDelta < 0) {
+    throw new RangeError("Score delta must be a non-negative integer.");
+  }
+
+  return {
+    ...state,
+    score: state.score + scoreDelta
+  };
 }
 
 export function createEmptyCells(): CellValue[] {

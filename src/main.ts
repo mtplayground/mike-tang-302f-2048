@@ -1,4 +1,5 @@
 import { createBoard } from "./components/Board";
+import { createHeader } from "./components/Header";
 import { createInitialGameState, getCellPosition } from "./game/state";
 import "./styles.css";
 
@@ -29,9 +30,5 @@ const tiles = gameState.cells.flatMap((value, index) => {
 const page = document.createElement("section");
 page.className = "game-shell";
 
-const heading = document.createElement("h1");
-heading.className = "game-title";
-heading.textContent = "2048";
-
-page.append(heading, createBoard(tiles));
+page.append(createHeader(gameState.score), createBoard(tiles));
 app.append(page);

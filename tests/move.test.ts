@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeLine, moveCells, moveCellsWithSpawn } from "../src/game/move.ts";
+import {
+  getMergeScore,
+  mergeLine,
+  moveCells,
+  moveCellsWithSpawn
+} from "../src/game/move.ts";
 import type { CellValue } from "../src/game/state.ts";
 
 function board(rows: CellValue[][]): CellValue[] {
@@ -39,6 +44,7 @@ test("moveCells moves and merges left in row order", () => {
     { index: 4, value: 8 },
     { index: 13, value: 32 }
   ]);
+  assert.equal(result.scoreDelta, 44);
 });
 
 test("moveCells moves and merges right in reverse row order", () => {
@@ -67,6 +73,7 @@ test("moveCells moves and merges right in reverse row order", () => {
     { index: 7, value: 8 },
     { index: 15, value: 32 }
   ]);
+  assert.equal(result.scoreDelta, 44);
 });
 
 test("moveCells moves and merges up in column order", () => {
@@ -96,6 +103,7 @@ test("moveCells moves and merges up in column order", () => {
     { index: 1, value: 8 },
     { index: 3, value: 16 }
   ]);
+  assert.equal(result.scoreDelta, 36);
 });
 
 test("moveCells moves and merges down in reverse column order", () => {
@@ -125,6 +133,7 @@ test("moveCells moves and merges down in reverse column order", () => {
     { index: 13, value: 8 },
     { index: 15, value: 16 }
   ]);
+  assert.equal(result.scoreDelta, 36);
 });
 
 test("moveCells reports no movement when the board is unchanged", () => {
@@ -140,6 +149,7 @@ test("moveCells reports no movement when the board is unchanged", () => {
   assert.equal(result.moved, false);
   assert.deepEqual(result.cells, cells);
   assert.deepEqual(result.merges, []);
+  assert.equal(result.scoreDelta, 0);
 });
 
 test("moveCellsWithSpawn adds one random tile after a changed move", () => {
@@ -165,6 +175,7 @@ test("moveCellsWithSpawn adds one random tile after a changed move", () => {
     ])
   );
   assert.deepEqual(result.spawned, { index: 0, value: 4 });
+  assert.equal(result.scoreDelta, 0);
 });
 
 test("moveCellsWithSpawn does not spawn when a move leaves the board unchanged", () => {
@@ -182,6 +193,18 @@ test("moveCellsWithSpawn does not spawn when a move leaves the board unchanged",
   assert.equal(result.moved, false);
   assert.deepEqual(result.cells, cells);
   assert.equal(result.spawned, null);
+  assert.equal(result.scoreDelta, 0);
+});
+
+test("getMergeScore sums each newly merged tile value", () => {
+  assert.equal(
+    getMergeScore([
+      { index: 0, value: 4 },
+      { index: 1, value: 8 },
+      { index: 2, value: 16 }
+    ]),
+    28
+  );
 });
 
 function sequence(values: number[]): () => number {
