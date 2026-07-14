@@ -1,6 +1,7 @@
 import { createBoard } from "./components/Board";
 import { createHeader } from "./components/Header";
 import { createInitialGameState, getCellPosition } from "./game/state";
+import { syncBestScore } from "./storage/bestScore";
 import "./styles.css";
 
 const app = document.querySelector<HTMLDivElement>("#app");
@@ -10,6 +11,7 @@ if (!app) {
 }
 
 const gameState = createInitialGameState();
+const bestScore = syncBestScore(gameState.score);
 const tiles = gameState.cells.flatMap((value, index) => {
   if (value === null) {
     return [];
@@ -30,5 +32,5 @@ const tiles = gameState.cells.flatMap((value, index) => {
 const page = document.createElement("section");
 page.className = "game-shell";
 
-page.append(createHeader(gameState.score), createBoard(tiles));
+page.append(createHeader({ score: gameState.score, bestScore }), createBoard(tiles));
 app.append(page);

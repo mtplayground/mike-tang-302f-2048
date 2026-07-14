@@ -53,6 +53,12 @@ select {
   gap: 18px;
 }
 
+.score-group {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+
 .game-title {
   margin: 0;
   color: #776e65;
@@ -178,8 +184,12 @@ select {
     align-items: center;
   }
 
+  .score-group {
+    gap: 6px;
+  }
+
   .score-card {
-    min-width: 88px;
+    min-width: 74px;
     padding: 9px 11px 10px;
   }
 
