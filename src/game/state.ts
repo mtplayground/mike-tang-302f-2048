@@ -1,6 +1,7 @@
 export const BOARD_SIZE = 4;
 export const CELL_COUNT = BOARD_SIZE * BOARD_SIZE;
 export const INITIAL_TILE_COUNT = 2;
+export const WIN_TILE_VALUE = 2048;
 
 export type TileValue = number;
 export type CellValue = TileValue | null;
@@ -9,6 +10,7 @@ export type RandomSource = () => number;
 export interface GameState {
   cells: CellValue[];
   score: number;
+  hasAcknowledgedWin: boolean;
 }
 
 export interface CellPosition {
@@ -25,7 +27,8 @@ export function createInitialGameState(random: RandomSource = Math.random): Game
 
   return {
     cells,
-    score: 0
+    score: 0,
+    hasAcknowledgedWin: false
   };
 }
 
@@ -37,6 +40,23 @@ export function applyScoreDelta(state: GameState, scoreDelta: number): GameState
   return {
     ...state,
     score: state.score + scoreDelta
+  };
+}
+
+export function hasWinningTile(cells: CellValue[]): boolean {
+  assertBoardShape(cells);
+
+  return cells.some((cell) => cell !== null && cell >= WIN_TILE_VALUE);
+}
+
+export function shouldShowWinOverlay(state: GameState): boolean {
+  return !state.hasAcknowledgedWin && hasWinningTile(state.cells);
+}
+
+export function acknowledgeWin(state: GameState): GameState {
+  return {
+    ...state,
+    hasAcknowledgedWin: true
   };
 }
 

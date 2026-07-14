@@ -1,11 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyScoreDelta, createInitialGameState } from "../src/game/state.ts";
+import {
+  acknowledgeWin,
+  applyScoreDelta,
+  createInitialGameState,
+  hasWinningTile,
+  shouldShowWinOverlay,
+  type GameState
+} from "../src/game/state.ts";
 
 test("createInitialGameState starts with a zero score", () => {
   const state = createInitialGameState(sequence([0, 0, 0.5, 0]));
 
   assert.equal(state.score, 0);
+  assert.equal(state.hasAcknowledgedWin, false);
 });
 
 test("applyScoreDelta increases the current score without changing cells", () => {
@@ -22,6 +30,31 @@ test("applyScoreDelta rejects invalid score deltas", () => {
   assert.throws(() => applyScoreDelta(state, -4), RangeError);
   assert.throws(() => applyScoreDelta(state, 1.5), RangeError);
 });
+
+test("hasWinningTile detects a tile at or above 2048", () => {
+  assert.equal(hasWinningTile(stateWithCells([null, 1024, null, 2]).cells), false);
+  assert.equal(hasWinningTile(stateWithCells([null, 2048, null, 2]).cells), true);
+  assert.equal(hasWinningTile(stateWithCells([4096, null, null, 2]).cells), true);
+});
+
+test("shouldShowWinOverlay is true until the win is acknowledged", () => {
+  const winningState = stateWithCells([2048, null, null, 2]);
+
+  assert.equal(shouldShowWinOverlay(winningState), true);
+
+  const acknowledgedState = acknowledgeWin(winningState);
+
+  assert.equal(acknowledgedState.hasAcknowledgedWin, true);
+  assert.equal(shouldShowWinOverlay(acknowledgedState), false);
+});
+
+function stateWithCells(values: Array<number | null>): GameState {
+  return {
+    cells: [...values, ...Array<null>(16 - values.length).fill(null)],
+    score: 0,
+    hasAcknowledgedWin: false
+  };
+}
 
 function sequence(values: number[]): () => number {
   let index = 0;

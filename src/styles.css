@@ -92,6 +92,12 @@ select {
   line-height: 1;
 }
 
+.game-board-area {
+  position: relative;
+  width: var(--board-size);
+  height: var(--board-size);
+}
+
 .board {
   position: relative;
   width: var(--board-size);
@@ -167,6 +173,56 @@ select {
   color: #f9f6f2;
   background: #edcf72;
   font-size: clamp(1.45rem, 7vw, 2.5rem);
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 5vw, 32px);
+  border-radius: 8px;
+  background: rgba(238, 228, 218, 0.82);
+  text-align: center;
+}
+
+.overlay-content {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.overlay-title {
+  margin: 0;
+  color: #776e65;
+  font-size: clamp(2.6rem, 12vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+}
+
+.overlay-message {
+  margin: 0;
+  color: #776e65;
+  font-size: clamp(1rem, 4.5vw, 1.35rem);
+  font-weight: 700;
+}
+
+.overlay-action {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 18px;
+  background: #8f7a66;
+  color: #f9f6f2;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.overlay-action:focus-visible {
+  outline: 3px solid #f2b179;
+  outline-offset: 3px;
 }
 
 @media (max-width: 420px) {
