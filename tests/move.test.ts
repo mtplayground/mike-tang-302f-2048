@@ -13,9 +13,17 @@ function board(rows: CellValue[][]): CellValue[] {
 }
 
 test("mergeLine slides values left and merges each tile once", () => {
-  assert.deepEqual(mergeLine([2, 2, 2, null]).values, [4, 2, null, null]);
-  assert.deepEqual(mergeLine([2, 2, 2, 2]).values, [4, 4, null, null]);
-  assert.deepEqual(mergeLine([2, 2, 4, null]).values, [4, 4, null, null]);
+  const first = mergeLine([2, 2, 2, null]);
+  const second = mergeLine([2, 2, 2, 2]);
+  const third = mergeLine([2, 2, 4, null]);
+
+  assert.deepEqual(first.values, [4, 2, null, null]);
+  assert.deepEqual(second.values, [4, 4, null, null]);
+  assert.deepEqual(third.values, [4, 4, null, null]);
+  assert.deepEqual(first.movements, [
+    { sourceOffset: 1, offset: 0, value: 4, merged: true },
+    { sourceOffset: 2, offset: 1, value: 2, merged: false }
+  ]);
 });
 
 test("moveCells moves and merges left in row order", () => {
@@ -43,6 +51,13 @@ test("moveCells moves and merges left in row order", () => {
     { index: 0, value: 4 },
     { index: 4, value: 8 },
     { index: 13, value: 32 }
+  ]);
+  assert.deepEqual(result.movements.filter((movement) => movement.fromIndex !== movement.toIndex), [
+    { fromIndex: 1, toIndex: 0, value: 4, merged: true },
+    { fromIndex: 2, toIndex: 1, value: 2, merged: false },
+    { fromIndex: 6, toIndex: 4, value: 8, merged: true },
+    { fromIndex: 7, toIndex: 5, value: 4, merged: false },
+    { fromIndex: 15, toIndex: 13, value: 32, merged: true }
   ]);
   assert.equal(result.scoreDelta, 44);
 });
@@ -149,6 +164,10 @@ test("moveCells reports no movement when the board is unchanged", () => {
   assert.equal(result.moved, false);
   assert.deepEqual(result.cells, cells);
   assert.deepEqual(result.merges, []);
+  assert.deepEqual(
+    result.movements.filter((movement) => movement.fromIndex !== movement.toIndex),
+    []
+  );
   assert.equal(result.scoreDelta, 0);
 });
 

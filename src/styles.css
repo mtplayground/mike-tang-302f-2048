@@ -144,6 +144,29 @@ select {
   line-height: 1;
   letter-spacing: 0;
   box-shadow: inset 0 -4px rgba(0, 0, 0, 0.04);
+  transform: translate(0, 0) scale(1);
+  will-change: transform;
+}
+
+.tile--slide {
+  --tile-slide-x: calc(
+    (var(--tile-previous-column) - var(--tile-column)) *
+      (var(--cell-size) + var(--board-gap))
+  );
+  --tile-slide-y: calc(
+    (var(--tile-previous-row) - var(--tile-row)) *
+      (var(--cell-size) + var(--board-gap))
+  );
+  animation: tile-slide 140ms ease-out both;
+}
+
+.tile--merged {
+  z-index: 1;
+  animation: tile-pop 170ms ease-out both;
+}
+
+.tile--slide.tile--merged {
+  animation: tile-slide-pop 210ms ease-out both;
 }
 
 .tile[data-value="2"] {
@@ -209,6 +232,48 @@ select {
   color: #f9f6f2;
   background: #3c3a32;
   font-size: clamp(1.15rem, 5.8vw, 2rem);
+}
+
+@keyframes tile-slide {
+  from {
+    transform: translate(var(--tile-slide-x), var(--tile-slide-y)) scale(1);
+  }
+
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes tile-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  55% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tile-slide-pop {
+  0% {
+    transform: translate(var(--tile-slide-x), var(--tile-slide-y)) scale(1);
+  }
+
+  65% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  82% {
+    transform: translate(0, 0) scale(1.1);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 .game-overlay {
