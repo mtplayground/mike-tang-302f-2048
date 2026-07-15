@@ -2,14 +2,17 @@ import { createBoard } from "./components/Board";
 import { createGameOverOverlay } from "./components/GameOverOverlay";
 import { createHeader } from "./components/Header";
 import { createWinOverlay } from "./components/WinOverlay";
+import { moveCellsWithSpawn, type Direction } from "./game/move";
 import {
   acknowledgeWin,
+  applyScoreDelta,
   createInitialGameState,
   getCellPosition,
   isGameOver,
   shouldShowWinOverlay,
   type GameState
 } from "./game/state";
+import { bindKeyboardControls } from "./input/keyboard";
 import { syncBestScore } from "./storage/bestScore";
 import "./styles.css";
 
@@ -25,7 +28,29 @@ const page = document.createElement("section");
 page.className = "game-shell";
 app.append(page);
 
+bindKeyboardControls(window, move, isInputEnabled);
 renderGame();
+
+function move(direction: Direction): void {
+  const moveResult = moveCellsWithSpawn(gameState.cells, direction);
+
+  if (!moveResult.moved) {
+    return;
+  }
+
+  gameState = applyScoreDelta(
+    {
+      ...gameState,
+      cells: moveResult.cells
+    },
+    moveResult.scoreDelta
+  );
+  renderGame();
+}
+
+function isInputEnabled(): boolean {
+  return !shouldShowWinOverlay(gameState) && !isGameOver(gameState.cells);
+}
 
 function renderGame(): void {
   const bestScore = syncBestScore(gameState.score);
