@@ -13,6 +13,7 @@ import {
   type GameState
 } from "./game/state";
 import { bindKeyboardControls } from "./input/keyboard";
+import { bindTouchControls } from "./input/touch";
 import { syncBestScore } from "./storage/bestScore";
 import "./styles.css";
 
@@ -29,6 +30,7 @@ page.className = "game-shell";
 app.append(page);
 
 bindKeyboardControls(window, move, isInputEnabled);
+bindTouchControls(page, move, isInputEnabled);
 renderGame();
 
 function move(direction: Direction): void {
