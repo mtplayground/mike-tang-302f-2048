@@ -60,6 +60,34 @@ export function acknowledgeWin(state: GameState): GameState {
   };
 }
 
+export function hasEmptyCell(cells: CellValue[]): boolean {
+  assertBoardShape(cells);
+
+  return cells.some((cell) => cell === null);
+}
+
+export function hasAvailableMerge(cells: CellValue[]): boolean {
+  assertBoardShape(cells);
+
+  return cells.some((cell, index) => {
+    if (cell === null) {
+      return false;
+    }
+
+    const rightIndex = getRightNeighborIndex(index);
+    const downIndex = getDownNeighborIndex(index);
+
+    return (
+      (rightIndex !== null && cells[rightIndex] === cell) ||
+      (downIndex !== null && cells[downIndex] === cell)
+    );
+  });
+}
+
+export function isGameOver(cells: CellValue[]): boolean {
+  return !hasEmptyCell(cells) && !hasAvailableMerge(cells);
+}
+
 export function createEmptyCells(): CellValue[] {
   return Array<CellValue>(CELL_COUNT).fill(null);
 }
@@ -126,6 +154,26 @@ function readRandomUnit(random: RandomSource): number {
   }
 
   return value;
+}
+
+function getRightNeighborIndex(index: number): number | null {
+  const column = index % BOARD_SIZE;
+
+  if (column === BOARD_SIZE - 1) {
+    return null;
+  }
+
+  return index + 1;
+}
+
+function getDownNeighborIndex(index: number): number | null {
+  const row = Math.floor(index / BOARD_SIZE);
+
+  if (row === BOARD_SIZE - 1) {
+    return null;
+  }
+
+  return index + BOARD_SIZE;
 }
 
 function assertBoardShape(cells: CellValue[]): void {

@@ -1,10 +1,12 @@
 import { createBoard } from "./components/Board";
+import { createGameOverOverlay } from "./components/GameOverOverlay";
 import { createHeader } from "./components/Header";
 import { createWinOverlay } from "./components/WinOverlay";
 import {
   acknowledgeWin,
   createInitialGameState,
   getCellPosition,
+  isGameOver,
   shouldShowWinOverlay,
   type GameState
 } from "./game/state";
@@ -36,6 +38,13 @@ function renderGame(): void {
     boardArea.append(
       createWinOverlay(() => {
         gameState = acknowledgeWin(gameState);
+        renderGame();
+      })
+    );
+  } else if (isGameOver(gameState.cells)) {
+    boardArea.append(
+      createGameOverOverlay(gameState.score, () => {
+        gameState = createInitialGameState();
         renderGame();
       })
     );
