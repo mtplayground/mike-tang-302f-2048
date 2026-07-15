@@ -146,6 +146,10 @@ select {
   box-shadow: inset 0 -4px rgba(0, 0, 0, 0.04);
 }
 
+.tile[data-value="2"] {
+  background: #eee4da;
+}
+
 .tile[data-value="4"] {
   background: #ede0c8;
 }
@@ -174,6 +178,37 @@ select {
   color: #f9f6f2;
   background: #edcf72;
   font-size: clamp(1.45rem, 7vw, 2.5rem);
+}
+
+.tile[data-value="256"] {
+  color: #f9f6f2;
+  background: #edcc61;
+  font-size: clamp(1.45rem, 7vw, 2.5rem);
+}
+
+.tile[data-value="512"] {
+  color: #f9f6f2;
+  background: #edc850;
+  font-size: clamp(1.45rem, 7vw, 2.5rem);
+}
+
+.tile[data-value="1024"] {
+  color: #f9f6f2;
+  background: #edc53f;
+  font-size: clamp(1.15rem, 5.8vw, 2rem);
+}
+
+.tile[data-value="2048"] {
+  color: #f9f6f2;
+  background: #edc22e;
+  font-size: clamp(1.15rem, 5.8vw, 2rem);
+}
+
+.tile[data-value="4096"],
+.tile[data-value="8192"] {
+  color: #f9f6f2;
+  background: #3c3a32;
+  font-size: clamp(1.15rem, 5.8vw, 2rem);
 }
 
 .game-overlay {
