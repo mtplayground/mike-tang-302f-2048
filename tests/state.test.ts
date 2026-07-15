@@ -102,10 +102,7 @@ function stateWithCells(values: Array<number | null>): GameState {
 
 function fullBoardWithoutMerges() {
   return [
-    2, 4, 2, 4,
-    4, 2, 4, 2,
-    2, 4, 2, 4,
-    4, 2, 4, 2
+    2, 4, 2, 4, 4, 2, 4, 2, 2, 4, 2, 4, 4, 2, 4, 2
   ];
 }
 
