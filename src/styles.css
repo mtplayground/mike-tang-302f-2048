@@ -96,6 +96,7 @@ select {
   position: relative;
   width: var(--board-size);
   height: var(--board-size);
+  touch-action: none;
 }
 
 .board {
