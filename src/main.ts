@@ -2,7 +2,7 @@ import { createBoard } from "./components/Board";
 import { createGameOverOverlay } from "./components/GameOverOverlay";
 import { createHeader } from "./components/Header";
 import { createWinOverlay } from "./components/WinOverlay";
-import { moveCellsWithSpawn, type Direction } from "./game/move";
+import { moveCellsWithSpawn, type Direction, type TileMovement } from "./game/move";
 import {
   acknowledgeWin,
   applyScoreDelta,
@@ -24,6 +24,7 @@ if (!app) {
 }
 
 let gameState = createInitialGameState();
+let tileAnimations = new Map<number, TileAnimation>();
 
 const page = document.createElement("section");
 page.className = "game-shell";
@@ -40,6 +41,7 @@ function move(direction: Direction): void {
     return;
   }
 
+  tileAnimations = createTileAnimations(moveResult.movements);
   gameState = applyScoreDelta(
     {
       ...gameState,
@@ -72,12 +74,14 @@ function renderGame(): void {
     boardArea.append(
       createGameOverOverlay(gameState.score, () => {
         gameState = createInitialGameState();
+        tileAnimations = new Map();
         renderGame();
       })
     );
   }
 
   page.replaceChildren(createHeader({ score: gameState.score, bestScore }), boardArea);
+  tileAnimations = new Map();
 }
 
 function createTiles(state: GameState) {
@@ -87,14 +91,44 @@ function createTiles(state: GameState) {
     }
 
     const position = getCellPosition(index);
+    const animation = tileAnimations.get(index);
 
     return [
       {
         id: `tile-${index}`,
         value,
         row: position.row,
-        column: position.column
+        column: position.column,
+        previousRow: animation?.previousRow,
+        previousColumn: animation?.previousColumn,
+        merged: animation?.merged
       }
     ];
   });
+}
+
+interface TileAnimation {
+  previousRow: number;
+  previousColumn: number;
+  merged: boolean;
+}
+
+function createTileAnimations(movements: TileMovement[]): Map<number, TileAnimation> {
+  const animations = new Map<number, TileAnimation>();
+
+  for (const movement of movements) {
+    if (!movement.merged && movement.fromIndex === movement.toIndex) {
+      continue;
+    }
+
+    const from = getCellPosition(movement.fromIndex);
+
+    animations.set(movement.toIndex, {
+      previousRow: from.row,
+      previousColumn: from.column,
+      merged: movement.merged
+    });
+  }
+
+  return animations;
 }

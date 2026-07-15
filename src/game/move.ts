@@ -20,10 +20,18 @@ export interface SpawnEvent {
   value: TileValue;
 }
 
+export interface TileMovement {
+  fromIndex: number;
+  toIndex: number;
+  value: TileValue;
+  merged: boolean;
+}
+
 export interface MoveResult {
   cells: CellValue[];
   moved: boolean;
   merges: MergeEvent[];
+  movements: TileMovement[];
   scoreDelta: number;
 }
 
@@ -37,6 +45,12 @@ interface LineMergeResult {
     offset: number;
     value: TileValue;
   }>;
+  movements: Array<{
+    sourceOffset: number;
+    offset: number;
+    value: TileValue;
+    merged: boolean;
+  }>;
 }
 
 export function moveCells(cells: CellValue[], direction: Direction): MoveResult {
@@ -44,6 +58,7 @@ export function moveCells(cells: CellValue[], direction: Direction): MoveResult 
 
   const nextCells = Array<CellValue>(CELL_COUNT).fill(null);
   const merges: MergeEvent[] = [];
+  const movements: TileMovement[] = [];
 
   for (const line of getLines(direction)) {
     const lineValues = line.map((index) => cells[index]);
@@ -59,12 +74,22 @@ export function moveCells(cells: CellValue[], direction: Direction): MoveResult 
         value: merge.value
       });
     }
+
+    for (const movement of mergedLine.movements) {
+      movements.push({
+        fromIndex: line[movement.sourceOffset],
+        toIndex: line[movement.offset],
+        value: movement.value,
+        merged: movement.merged
+      });
+    }
   }
 
   return {
     cells: nextCells,
     moved: !areCellsEqual(cells, nextCells),
     merges,
+    movements,
     scoreDelta: getMergeScore(merges)
   };
 }
@@ -130,24 +155,43 @@ export function mergeLine(values: CellValue[]): LineMergeResult {
     throw new RangeError(`Line must contain exactly ${BOARD_SIZE} cells.`);
   }
 
-  const compactValues = values.filter((value): value is TileValue => value !== null);
+  const compactValues = values.flatMap((value, offset) => {
+    if (value === null) {
+      return [];
+    }
+
+    return [{ value, offset }];
+  });
   const mergedValues: CellValue[] = [];
   const merges: LineMergeResult["merges"] = [];
+  const movements: LineMergeResult["movements"] = [];
 
   for (let index = 0; index < compactValues.length; index += 1) {
-    const value = compactValues[index];
-    const nextValue = compactValues[index + 1];
+    const tile = compactValues[index];
+    const nextTile = compactValues[index + 1];
 
-    if (nextValue === value) {
-      const mergedValue = value * 2;
+    if (nextTile?.value === tile.value) {
+      const mergedValue = tile.value * 2;
       merges.push({
         offset: mergedValues.length,
         value: mergedValue
       });
+      movements.push({
+        sourceOffset: nextTile.offset,
+        offset: mergedValues.length,
+        value: mergedValue,
+        merged: true
+      });
       mergedValues.push(mergedValue);
       index += 1;
     } else {
-      mergedValues.push(value);
+      movements.push({
+        sourceOffset: tile.offset,
+        offset: mergedValues.length,
+        value: tile.value,
+        merged: false
+      });
+      mergedValues.push(tile.value);
     }
   }
 
@@ -157,7 +201,8 @@ export function mergeLine(values: CellValue[]): LineMergeResult {
 
   return {
     values: mergedValues,
-    merges
+    merges,
+    movements
   };
 }
 
