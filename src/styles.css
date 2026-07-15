@@ -169,6 +169,10 @@ select {
   animation: tile-slide-pop 210ms ease-out both;
 }
 
+.tile--spawned {
+  animation: tile-spawn 170ms ease-out both;
+}
+
 .tile[data-value="2"] {
   background: #eee4da;
 }
@@ -273,6 +277,23 @@ select {
 
   100% {
     transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes tile-spawn {
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

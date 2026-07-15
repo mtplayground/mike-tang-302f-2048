@@ -41,7 +41,7 @@ function move(direction: Direction): void {
     return;
   }
 
-  tileAnimations = createTileAnimations(moveResult.movements);
+  tileAnimations = createTileAnimations(moveResult.movements, moveResult.spawned?.index);
   gameState = applyScoreDelta(
     {
       ...gameState,
@@ -101,19 +101,24 @@ function createTiles(state: GameState) {
         column: position.column,
         previousRow: animation?.previousRow,
         previousColumn: animation?.previousColumn,
-        merged: animation?.merged
+        merged: animation?.merged,
+        spawned: animation?.spawned
       }
     ];
   });
 }
 
 interface TileAnimation {
-  previousRow: number;
-  previousColumn: number;
-  merged: boolean;
+  previousRow?: number;
+  previousColumn?: number;
+  merged?: boolean;
+  spawned?: boolean;
 }
 
-function createTileAnimations(movements: TileMovement[]): Map<number, TileAnimation> {
+function createTileAnimations(
+  movements: TileMovement[],
+  spawnedIndex?: number
+): Map<number, TileAnimation> {
   const animations = new Map<number, TileAnimation>();
 
   for (const movement of movements) {
@@ -128,6 +133,10 @@ function createTileAnimations(movements: TileMovement[]): Map<number, TileAnimat
       previousColumn: from.column,
       merged: movement.merged
     });
+  }
+
+  if (spawnedIndex !== undefined) {
+    animations.set(spawnedIndex, { spawned: true });
   }
 
   return animations;

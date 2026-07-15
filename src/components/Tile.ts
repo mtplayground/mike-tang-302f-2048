@@ -6,6 +6,7 @@ export interface TileViewModel {
   previousRow?: number;
   previousColumn?: number;
   merged?: boolean;
+  spawned?: boolean;
 }
 
 export function createTile(tile: TileViewModel): HTMLElement {
@@ -36,6 +37,10 @@ function getTileClassName(tile: TileViewModel): string {
 
   if (tile.merged) {
     classNames.push("tile--merged");
+  }
+
+  if (tile.spawned) {
+    classNames.push("tile--spawned");
   }
 
   return classNames.join(" ");
