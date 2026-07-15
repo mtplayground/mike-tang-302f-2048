@@ -7,8 +7,9 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --board-size: min(86vw, 520px);
-  --board-gap: clamp(10px, 2.4vw, 16px);
+  --page-inline-padding: clamp(14px, 4vw, 28px);
+  --board-size: min(calc(100vw - (var(--page-inline-padding) * 2)), 520px);
+  --board-gap: clamp(10px, calc(var(--board-size) * 0.03), 16px);
   --cell-size: calc((var(--board-size) - (var(--board-gap) * 5)) / 4);
 }
 
@@ -19,6 +20,7 @@
 body {
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 34rem),
@@ -34,21 +36,24 @@ select {
 
 #app {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .game-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 24px;
-  padding: 32px 18px;
+  gap: clamp(18px, 3vh, 28px);
+  padding: clamp(20px, 5vh, 44px) var(--page-inline-padding);
 }
 
 .game-header {
   width: var(--board-size);
+  max-width: 100%;
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
 }
@@ -62,7 +67,7 @@ select {
 .game-title {
   margin: 0;
   color: #776e65;
-  font-size: clamp(3.5rem, 18vw, 5.5rem);
+  font-size: 5.5rem;
   font-weight: 800;
   line-height: 0.9;
 }
@@ -139,7 +144,7 @@ select {
   border-radius: 6px;
   color: #776e65;
   background: #eee4da;
-  font-size: clamp(1.9rem, 9vw, 3.25rem);
+  font-size: 3.25rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0;
@@ -204,38 +209,38 @@ select {
 .tile[data-value="128"] {
   color: #f9f6f2;
   background: #edcf72;
-  font-size: clamp(1.45rem, 7vw, 2.5rem);
+  font-size: 2.5rem;
 }
 
 .tile[data-value="256"] {
   color: #f9f6f2;
   background: #edcc61;
-  font-size: clamp(1.45rem, 7vw, 2.5rem);
+  font-size: 2.5rem;
 }
 
 .tile[data-value="512"] {
   color: #f9f6f2;
   background: #edc850;
-  font-size: clamp(1.45rem, 7vw, 2.5rem);
+  font-size: 2.5rem;
 }
 
 .tile[data-value="1024"] {
   color: #f9f6f2;
   background: #edc53f;
-  font-size: clamp(1.15rem, 5.8vw, 2rem);
+  font-size: 2rem;
 }
 
 .tile[data-value="2048"] {
   color: #f9f6f2;
   background: #edc22e;
-  font-size: clamp(1.15rem, 5.8vw, 2rem);
+  font-size: 2rem;
 }
 
 .tile[data-value="4096"],
 .tile[data-value="8192"] {
   color: #f9f6f2;
   background: #3c3a32;
-  font-size: clamp(1.15rem, 5.8vw, 2rem);
+  font-size: 2rem;
 }
 
 @keyframes tile-slide {
@@ -303,7 +308,7 @@ select {
   z-index: 2;
   display: grid;
   place-items: center;
-  padding: clamp(18px, 5vw, 32px);
+  padding: 32px;
   border-radius: 8px;
   background: rgba(238, 228, 218, 0.82);
   text-align: center;
@@ -318,7 +323,7 @@ select {
 .overlay-title {
   margin: 0;
   color: #776e65;
-  font-size: clamp(2.6rem, 12vw, 4.5rem);
+  font-size: 4.5rem;
   font-weight: 800;
   line-height: 0.95;
 }
@@ -326,7 +331,7 @@ select {
 .overlay-message {
   margin: 0;
   color: #776e65;
-  font-size: clamp(1rem, 4.5vw, 1.35rem);
+  font-size: 1.35rem;
   font-weight: 700;
 }
 
@@ -354,19 +359,25 @@ select {
   outline-offset: 3px;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 520px) {
   :root {
-    --board-size: min(92vw, 360px);
+    --page-inline-padding: 12px;
+    --board-size: min(calc(100vw - 24px), 420px);
     --board-gap: 10px;
   }
 
   .game-shell {
-    gap: 18px;
-    padding: 24px 12px;
+    gap: 16px;
+    padding-block: 22px;
   }
 
   .game-header {
     align-items: center;
+    gap: 12px;
+  }
+
+  .game-title {
+    font-size: 4.25rem;
   }
 
   .score-group {
@@ -374,11 +385,85 @@ select {
   }
 
   .score-card {
-    min-width: 74px;
+    min-width: 78px;
     padding: 9px 11px 10px;
   }
 
   .score-value {
     font-size: 1.35rem;
+  }
+
+  .tile {
+    font-size: 2.35rem;
+  }
+
+  .tile[data-value="128"],
+  .tile[data-value="256"],
+  .tile[data-value="512"] {
+    font-size: 1.85rem;
+  }
+
+  .tile[data-value="1024"],
+  .tile[data-value="2048"],
+  .tile[data-value="4096"],
+  .tile[data-value="8192"] {
+    font-size: 1.45rem;
+  }
+
+  .game-overlay {
+    padding: 20px;
+  }
+
+  .overlay-title {
+    font-size: 3rem;
+  }
+
+  .overlay-message {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-title {
+    font-size: 3.6rem;
+  }
+
+  .score-card {
+    min-width: 68px;
+    padding: 8px 9px 9px;
+  }
+
+  .score-label {
+    font-size: 0.72rem;
+  }
+
+  .score-value {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-height: 620px) and (orientation: landscape) {
+  :root {
+    --board-size: min(calc(100vw - 32px), calc(100dvh - 144px), 420px);
+    --board-gap: 8px;
+  }
+
+  .game-shell {
+    align-content: start;
+    gap: 12px;
+    padding-block: 14px;
+  }
+
+  .game-title {
+    font-size: 3.6rem;
+  }
+
+  .score-card {
+    min-width: 74px;
+    padding: 8px 10px 9px;
+  }
+
+  .score-value {
+    font-size: 1.2rem;
   }
 }
